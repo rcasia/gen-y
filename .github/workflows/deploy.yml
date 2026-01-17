@@ -51,18 +51,46 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
 
+      - name: Configure Terraform Backend
+        working-directory: ./infrastructure
+        env:
+          TF_BACKEND_URL: ${{ secrets.TF_BACKEND_URL }}
+        run: |
+          # Crear backend.hcl dinámicamente si tenemos la URL del backend
+          if [ -n "$TF_BACKEND_URL" ]; then
+            cat > backend.hcl <<EOF
+          address = "$TF_BACKEND_URL/terraform.tfstate"
+          lock_address = "$TF_BACKEND_URL/terraform.tfstate/lock"
+          unlock_address = "$TF_BACKEND_URL/terraform.tfstate/lock"
+          lock_method = "POST"
+          unlock_method = "DELETE"
+          retry_max = 5
+          retry_wait_min = 1
+          EOF
+            echo "✅ Backend HTTP configurado: $TF_BACKEND_URL"
+          else
+            echo "⚠️  TF_BACKEND_URL no configurado."
+            echo "📝 Para el primer deployment, esto es normal. El estado se guardará localmente."
+            echo "📝 Después del primer deployment, configura TF_BACKEND_URL con la URL del servicio terraform-backend"
+            echo "📝 Luego ejecuta: terraform init -migrate-state -backend-config=backend.hcl"
+          fi
+
       - name: Terraform Init
         working-directory: ./infrastructure
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          # Configuración del backend HTTP (si backend.hcl no está disponible)
-          TF_HTTP_ADDRESS: ${{ secrets.TF_HTTP_ADDRESS }}
         run: |
-          # Si existe backend.hcl, úsalo; si no, usa variables de entorno
+          # Si existe backend.hcl, úsalo; si no, inicializa sin backend remoto (estado local)
           if [ -f backend.hcl ]; then
+            echo "✅ Usando backend.hcl para configuración remota"
             terraform init -backend-config=backend.hcl
           else
-            terraform init
+            echo "⚠️  backend.hcl no encontrado. Inicializando sin backend remoto."
+            echo "⚠️  Esto guardará el estado localmente en el runner (se perderá después del job)."
+            echo "⚠️  Para producción, configura el secreto TF_BACKEND_URL en GitHub después del primer deployment."
+            # Inicializar sin backend remoto (usará el backend por defecto que fallará, pero podemos continuar)
+            # Alternativamente, podríamos usar -backend=false, pero eso requiere cambios en versions.tf
+            terraform init -backend=false || terraform init
           fi
 
       - name: Terraform Validate

@@ -312,6 +312,11 @@ Esto creará el servicio `terraform-backend` en Railway.
 2. Genera un dominio público o usa el dominio automático de Railway
 3. Copia la URL (ej: `https://terraform-backend-xxxx.up.railway.app`)
 
+**Para GitHub Actions**: Agrega esta URL como secreto:
+- Ve a GitHub → tu repositorio → Settings → Secrets and variables → Actions
+- Agrega un nuevo secreto: `TF_BACKEND_URL` con la URL completa (sin `/terraform.tfstate`)
+- Ejemplo: `https://terraform-backend-xxxx.up.railway.app`
+
 #### Paso 4: Configurar Terraform para usar el backend
 
 ```bash
@@ -390,4 +395,5 @@ curl https://tu-backend.railway.app/terraform.tfstate
 
 ### Documentación del Servicio
 
-Ver [terraform-backend/README.md](terraform-backend/README.md) para más detalles sobre el servicio.
+- [terraform-backend/README.md](terraform-backend/README.md) - Documentación técnica del servicio
+- [BACKEND_SETUP.md](BACKEND_SETUP.md) - Guía completa de configuración del backend
