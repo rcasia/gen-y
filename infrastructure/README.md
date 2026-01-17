@@ -131,6 +131,13 @@ terraform destroy
 | `region` | Región de Railway | `us-west` | No |
 | `domain` | Dominio personalizado (opcional) | `""` | No |
 | `port` | Puerto de la aplicación | `80` | No |
+| `github_repo` | Repositorio GitHub (formato: `owner/repo`) | `""` | No* |
+| `github_branch` | Rama de GitHub a desplegar | `main` | No |
+| `root_directory` | Directorio raíz del servicio | `""` | No |
+| `generate_domain` | Generar dominio público automáticamente | `true` | No |
+| `service_subdomain` | Subdominio para el servicio | `web` | No |
+
+\* **Requerido para despliegue automático**: Si no se proporciona `github_repo`, el servicio se creará pero no se conectará a ningún repositorio y no habrá deployments automáticos.
 
 ## 🐳 Docker
 
@@ -221,6 +228,15 @@ Asegúrate de ejecutar los comandos desde la raíz del proyecto, no desde `infra
 
 ### Provider comunitario tiene limitaciones
 Si el provider comunitario no soporta algún recurso o tiene errores, usa Railway CLI directamente (ver [ALTERNATIVA.md](ALTERNATIVA.md)).
+
+### No hay Active Deployments / No hay URL
+Si Railway dice "no active deployments for this service", el servicio está creado pero no está conectado a un repositorio. **Consulta [DEPLOYMENT.md](DEPLOYMENT.md) para la solución completa.**
+
+Pasos rápidos:
+1. Ve a Railway Dashboard → tu proyecto → servicio "web"
+2. Settings → Source → Connect GitHub Repo
+3. Selecciona tu repositorio
+4. Settings → Networking → Generate Domain
 
 ## 📚 Recursos
 

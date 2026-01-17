@@ -14,8 +14,13 @@ output "service_name" {
 }
 
 output "service_url" {
-  description = "Railway service URL"
+  description = "Railway service dashboard URL"
   value       = "https://railway.app/project/${railway_project.main.id}/service/${railway_service.web.id}"
+}
+
+output "public_domain" {
+  description = "Public domain URL for the service"
+  value       = var.generate_domain ? railway_service_domain.public[0].domain : "No generado. Configura generate_domain=true"
 }
 
 output "custom_domain" {

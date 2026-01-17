@@ -8,3 +8,12 @@ environment    = "production"
 region         = "us-west"
 domain         = "" # Opcional: "app.tudominio.com"
 port           = 80
+
+# Configuración del repositorio de GitHub
+github_repo     = "tu-usuario/genY" # Formato: "owner/repo"
+github_branch   = "main"            # Rama a desplegar
+root_directory  = ""                # Directorio raíz (vacío = raíz del repo)
+
+# Dominio público
+generate_domain  = true              # Generar dominio público automáticamente
+service_subdomain = "web"            # Subdominio para el servicio

@@ -74,6 +74,10 @@ jobs:
             -var="service_name=web" \
             -var="environment=production" \
             -var="port=80" \
+            -var="github_repo=${{ github.repository }}" \
+            -var="github_branch=${{ github.ref_name }}" \
+            -var="generate_domain=true" \
+            -var="service_subdomain=web" \
             -out=tfplan
         continue-on-error: true
 
