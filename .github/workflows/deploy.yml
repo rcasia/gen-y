@@ -1,0 +1,100 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  TERRAFORM_VERSION: '1.6.0'
+
+jobs:
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linter
+        run: pnpm run lint
+        continue-on-error: true
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: ./infrastructure
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          terraform init
+
+      - name: Terraform Validate
+        working-directory: ./infrastructure
+        run: |
+          terraform validate
+
+      - name: Terraform Plan
+        working-directory: ./infrastructure
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          terraform plan \
+            -var="railway_token=${{ secrets.RAILWAY_TOKEN }}" \
+            -var="project_name=geny-market" \
+            -var="service_name=web" \
+            -var="environment=production" \
+            -var="port=80" \
+            -out=tfplan
+        continue-on-error: true
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        working-directory: ./infrastructure
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          terraform apply -auto-approve tfplan
+          
+      - name: Terraform Output
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        working-directory: ./infrastructure
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          terraform output
+          
+      - name: Cleanup Terraform Plan
+        if: always()
+        working-directory: ./infrastructure
+        run: |
+          rm -f tfplan tfplan.*

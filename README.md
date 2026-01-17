@@ -53,16 +53,43 @@ O usando docker-compose:
 docker-compose -f infrastructure/docker-compose.yml up
 ```
 
-## 🚂 Despliegue en Railway con Terraform
+## 🚂 Despliegue en Railway
+
+### 🎯 Despliegue Automático con GitHub Actions (Recomendado)
+
+El proyecto incluye workflows de GitHub Actions para despliegue automático.
+
+#### Configuración Inicial
+
+1. **Añade el secret de Railway en GitHub:**
+   - Ve a tu repositorio → Settings → Secrets and variables → Actions
+   - Añade `RAILWAY_TOKEN` con tu token de Railway
+   - Obtén el token en: [railway.app/account/tokens](https://railway.app/account/tokens)
+
+2. **Haz push a `main` o `master`:**
+   ```bash
+   git push origin main
+   ```
+   El despliegue se ejecutará automáticamente.
+
+#### Workflows Disponibles
+
+- **`deploy.yml`**: Despliegue con Terraform (recomendado)
+- **`deploy-railway-cli.yml`**: Despliegue con Railway CLI (alternativa)
+- **`ci.yml`**: CI para tests y linting
+
+Ver [.github/workflows/README.md](.github/workflows/README.md) para más detalles.
+
+### 🔧 Despliegue Manual con Terraform
 
 Toda la infraestructura está en la carpeta `infrastructure/` y usa Terraform como IaC.
 
-### Prerrequisitos
+#### Prerrequisitos
 
 1. **Terraform** instalado (>= 1.0)
 2. **Railway API Token** desde [railway.app/account/tokens](https://railway.app/account/tokens)
 
-### Configuración Rápida
+#### Configuración Rápida
 
 ```bash
 cd infrastructure
@@ -81,7 +108,7 @@ terraform plan
 terraform apply
 ```
 
-### Usando Make (recomendado)
+#### Usando Make (recomendado)
 
 ```bash
 cd infrastructure
@@ -99,9 +126,9 @@ make apply
 make output
 ```
 
-### Alternativa: Railway CLI
+### 🚀 Alternativa: Railway CLI
 
-Si Terraform no está disponible, puedes usar Railway CLI:
+Si prefieres no usar Terraform:
 
 ```bash
 # Instalar Railway CLI
@@ -117,12 +144,23 @@ railway init
 railway up
 ```
 
+O usar el script incluido:
+
+```bash
+./infrastructure/deploy.sh
+```
+
 Para más detalles, ver [infrastructure/README.md](infrastructure/README.md)
 
 ## 📁 Estructura del Proyecto
 
 ```
 genY/
+├── .github/
+│   └── workflows/      # GitHub Actions para CI/CD
+│       ├── deploy.yml  # Despliegue con Terraform
+│       ├── deploy-railway-cli.yml  # Despliegue con CLI
+│       └── ci.yml      # Continuous Integration
 ├── src/
 │   ├── components/      # Componentes React
 │   ├── context/         # Context API para estado global
@@ -149,6 +187,7 @@ genY/
 - **Docker** - Containerización
 - **Nginx** - Servidor web para producción
 - **Terraform** - Infraestructura como código
+- **GitHub Actions** - CI/CD automatizado
 - **Railway** - Plataforma de despliegue
 
 ## 📝 Scripts Disponibles
