@@ -19,8 +19,8 @@ output "service_url" {
 }
 
 output "public_domain" {
-  description = "Public domain URL for the service"
-  value       = var.generate_domain ? railway_service_domain.public[0].domain : "No generado. Configura generate_domain=true"
+  description = "Public domain URL for the service (generado automáticamente por Railway después del primer deployment exitoso)"
+  value       = "Consulta el dominio en: https://railway.app/project/${railway_project.main.id}/service/${railway_service.web.id}/settings/networking"
 }
 
 output "custom_domain" {

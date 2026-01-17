@@ -37,15 +37,10 @@ resource "railway_variable" "port" {
   value          = tostring(var.port)
 }
 
-# Railway Service Domain (dominio público generado automáticamente)
-# Railway genera un dominio público para el servicio
-resource "railway_service_domain" "public" {
-  count = var.generate_domain ? 1 : 0
-  
-  service_id     = railway_service.web.id
-  environment_id = railway_project.main.default_environment.id
-  subdomain      = var.service_subdomain
-}
+# Nota: Railway genera automáticamente un dominio público cuando:
+# 1. El servicio está conectado a un repositorio (source_repo)
+# 2. Hay un deployment exitoso
+# No es necesario crear el dominio manualmente con Terraform
 
 # Railway Custom Domain (si se proporciona)
 # El provider comunitario soporta railway_custom_domain

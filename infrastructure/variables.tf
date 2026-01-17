@@ -58,14 +58,16 @@ variable "root_directory" {
   default     = ""
 }
 
+# Nota: Railway genera automáticamente el dominio público cuando hay un deployment exitoso
+# No es necesario configurar estas variables, pero las mantenemos por compatibilidad
 variable "generate_domain" {
-  description = "Whether to generate a public domain for the service"
+  description = "Deprecated: Railway genera el dominio automáticamente. Se mantiene por compatibilidad."
   type        = bool
   default     = true
 }
 
 variable "service_subdomain" {
-  description = "Subdomain for the service domain (e.g., 'web' for web-production.up.railway.app)"
+  description = "Deprecated: Railway genera el dominio automáticamente. Se mantiene por compatibilidad."
   type        = string
   default     = "web"
 }
