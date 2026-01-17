@@ -1,0 +1,10 @@
+# Copia este archivo a terraform.tfvars y completa los valores
+# terraform.tfvars está en .gitignore y no se subirá al repositorio
+
+railway_token = "your-railway-api-token-here"
+project_name   = "geny-market"
+service_name   = "web"
+environment    = "production"
+region         = "us-west"
+domain         = "" # Opcional: "app.tudominio.com"
+port           = 80
