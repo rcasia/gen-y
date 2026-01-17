@@ -8,9 +8,14 @@ output "service_id" {
   value       = railway_service.web.id
 }
 
-output "deployment_url" {
-  description = "URL del servicio desplegado (consulta en Railway dashboard)"
-  value       = "Consulta la URL en: https://railway.app/project/${railway_project.main.id}/service/${railway_service.web.id}"
+output "service_name" {
+  description = "Railway service name"
+  value       = railway_service.web.name
+}
+
+output "service_url" {
+  description = "Railway service URL"
+  value       = "https://railway.app/project/${railway_project.main.id}/service/${railway_service.web.id}"
 }
 
 output "custom_domain" {
@@ -24,6 +29,6 @@ output "custom_domain_dns" {
 }
 
 output "environment_id" {
-  description = "Railway environment ID"
-  value       = railway_environment.main.id
+  description = "Railway environment ID (default environment)"
+  value       = railway_project.main.default_environment.id
 }
