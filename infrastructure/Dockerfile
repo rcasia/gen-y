@@ -21,14 +21,24 @@ RUN pnpm run build
 # Production stage
 FROM nginx:alpine
 
-# Copy custom nginx config
-COPY infrastructure/nginx.conf /etc/nginx/conf.d/default.conf
+# Install gettext for envsubst
+RUN apk add --no-cache gettext
+
+# Create nginx templates directory
+RUN mkdir -p /etc/nginx/templates
+
+# Copy custom nginx config template
+COPY infrastructure/nginx.conf /etc/nginx/templates/default.conf.template
 
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port
+# Copy startup script
+COPY infrastructure/start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expose port (Railway will set PORT env var)
 EXPOSE 80
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start nginx using the startup script
+CMD ["/start.sh"]
