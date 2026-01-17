@@ -2,17 +2,42 @@
 
 Guía para configurar el backend HTTP de Terraform en Railway para uso local y en GitHub Actions.
 
-## Configuración Inicial
+## ⚠️ Importante: Primer Deployment
 
-### 1. Desplegar el servicio de backend
+Hay una dependencia circular: necesitas el backend para desplegar, pero necesitas desplegar para crear el backend.
 
-Primero, despliega la infraestructura que incluye el servicio `terraform-backend`:
+### Solución: Primer Deployment Manual
+
+Para el primer deployment, necesitas desplegar sin el backend remoto:
+
+**Opción 1: Deployment local (Recomendado para el primer deployment)**
 
 ```bash
 cd infrastructure
+
+# 1. Inicializar sin backend remoto (usa estado local)
 terraform init
+
+# 2. Desplegar la infraestructura (esto creará el servicio terraform-backend)
 terraform apply
+
+# 3. Después del deployment, configura el backend y migra el estado (ver abajo)
 ```
+
+**Opción 2: Usar backend local temporal en GitHub Actions**
+
+Para el primer deployment en CI/CD, el workflow fallará si no hay `TF_BACKEND_URL` configurado. Necesitas:
+
+1. Hacer el primer deployment manualmente (localmente o desde tu máquina)
+2. Obtener la URL del backend
+3. Configurar `TF_BACKEND_URL` en GitHub
+4. Luego el workflow funcionará automáticamente
+
+## Configuración Inicial (Después del Primer Deployment)
+
+### 1. El servicio terraform-backend ya está desplegado
+
+Después del primer `terraform apply`, el servicio `terraform-backend` ya existe en Railway.
 
 ### 2. Configurar Volume persistente
 
@@ -89,21 +114,29 @@ El workflow de GitHub Actions (`deploy.yml`) crea automáticamente el archivo `b
 
 ## Migrar Estado Local a Remoto
 
-Si ya tienes un estado local y quieres migrarlo al backend remoto:
+**IMPORTANTE**: Después del primer deployment manual, necesitas migrar el estado al backend remoto:
 
 ```bash
 cd infrastructure
 
-# 1. Configura el backend
-cp backend.hcl.example backend.hcl
-# Edita backend.hcl con la URL de tu servicio
+# 1. Obtén la URL del servicio terraform-backend desde Railway Dashboard
+# Ejemplo: https://terraform-backend-xxxx.up.railway.app
 
-# 2. Inicializa con migración
+# 2. Configura el backend
+cp backend.hcl.example backend.hcl
+# Edita backend.hcl con la URL de tu servicio (sin /terraform.tfstate al final)
+
+# 3. Inicializa con migración
 terraform init -migrate-state -backend-config=backend.hcl
 
-# 3. Confirma la migración cuando se te pregunte
+# 4. Confirma la migración cuando se te pregunte (escribe "yes")
 # Esto moverá tu estado local al backend remoto
+
+# 5. Verifica que funcionó
+terraform state list
 ```
+
+**Para GitHub Actions**: Después de migrar el estado localmente, agrega el secreto `TF_BACKEND_URL` en GitHub y el workflow usará el backend remoto automáticamente.
 
 ## Verificar Configuración
 
