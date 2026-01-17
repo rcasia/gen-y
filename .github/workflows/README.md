@@ -22,24 +22,7 @@ Despliega la aplicación en Railway usando Terraform como IaC.
 - Pull Request → Solo plan (no despliega)
 - Manualmente desde Actions tab
 
-### 2. `deploy-railway-cli.yml` - Despliegue con Railway CLI
-
-Alternativa usando Railway CLI directamente (más simple, menos control).
-
-**Características:**
-- ✅ Build de la aplicación
-- ✅ Despliegue con Railway CLI
-- ✅ Solo se ejecuta en `main`/`master`
-
-**Secrets requeridos:**
-- `RAILWAY_TOKEN`: Token de API de Railway
-- `RAILWAY_PROJECT_ID`: ID del proyecto en Railway (opcional, se puede linkear)
-
-**Cuándo se ejecuta:**
-- Push a `main` o `master`
-- Manualmente desde Actions tab
-
-### 3. `ci.yml` - Continuous Integration
+### 2. `ci.yml` - Continuous Integration
 
 Ejecuta tests, linting y build en cada push/PR.
 
@@ -61,10 +44,6 @@ Ejecuta tests, linting y build en cada push/PR.
 ### Para Terraform (deploy.yml):
 - `RAILWAY_TOKEN`: Tu token de Railway API
   - Obtener en: https://railway.app/account/tokens
-
-### Para Railway CLI (deploy-railway-cli.yml):
-- `RAILWAY_TOKEN`: Tu token de Railway API
-- `RAILWAY_PROJECT_ID`: ID del proyecto (opcional)
 
 ## 🚀 Uso
 
