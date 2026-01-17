@@ -27,6 +27,9 @@ RUN apk add --no-cache gettext
 # Create nginx templates directory
 RUN mkdir -p /etc/nginx/templates
 
+# Remove default nginx config to avoid conflicts
+RUN rm -f /etc/nginx/conf.d/default.conf
+
 # Copy custom nginx config template
 COPY infrastructure/nginx.conf /etc/nginx/templates/default.conf.template
 
