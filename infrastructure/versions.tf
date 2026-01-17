@@ -10,12 +10,22 @@ terraform {
     }
   }
 
-  # Backend configuration (opcional)
-  # Para producción, considera usar Terraform Cloud o S3
-  # backend "remote" {
-  #   organization = "tu-organizacion"
-  #   workspaces {
-  #     name = "geny-market"
-  #   }
-  # }
+  # Backend HTTP remoto en Railway
+  # El estado se almacena en un servicio HTTP desplegado en Railway
+  # Usa un Volume persistente para almacenar el estado de forma segura
+  #
+  # Configuración mediante archivo backend.hcl:
+  # terraform init -backend-config=backend.hcl
+  #
+  # O mediante variables de entorno:
+  # export TF_HTTP_ADDRESS="https://tu-backend.railway.app"
+  backend "http" {
+    address        = "http://localhost:3000/terraform.tfstate"
+    lock_address   = "http://localhost:3000/terraform.tfstate/lock"
+    unlock_address = "http://localhost:3000/terraform.tfstate/lock"
+    lock_method    = "POST"
+    unlock_method  = "DELETE"
+    retry_max      = 5
+    retry_wait_min = 1
+  }
 }

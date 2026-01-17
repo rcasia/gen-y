@@ -55,8 +55,15 @@ jobs:
         working-directory: ./infrastructure
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # Configuración del backend HTTP (si backend.hcl no está disponible)
+          TF_HTTP_ADDRESS: ${{ secrets.TF_HTTP_ADDRESS }}
         run: |
-          terraform init
+          # Si existe backend.hcl, úsalo; si no, usa variables de entorno
+          if [ -f backend.hcl ]; then
+            terraform init -backend-config=backend.hcl
+          else
+            terraform init
+          fi
 
       - name: Terraform Validate
         working-directory: ./infrastructure

@@ -1,0 +1,24 @@
+# Configuración del backend HTTP remoto en Railway
+# Copia este archivo a backend.hcl y configura la URL de tu servicio
+
+# URL del servicio terraform-backend desplegado en Railway
+# Obtén esta URL después del primer deployment desde Railway Dashboard
+# Formato: https://tu-backend-xxxx.up.railway.app
+address = "https://tu-backend-xxxx.up.railway.app/terraform.tfstate"
+
+# URLs para lock/unlock (mismo dominio)
+lock_address   = "https://tu-backend-xxxx.up.railway.app/terraform.tfstate/lock"
+unlock_address = "https://tu-backend-xxxx.up.railway.app/terraform.tfstate/lock"
+
+# Métodos HTTP
+lock_method   = "POST"
+unlock_method = "DELETE"
+
+# Configuración de reintentos
+retry_max      = 5
+retry_wait_min = 1
+
+# Autenticación básica (opcional, recomendado para producción)
+# Descomenta y configura si agregas autenticación al servicio
+# username = "terraform"
+# password = "tu-password-seguro"
