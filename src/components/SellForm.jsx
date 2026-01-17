@@ -19,7 +19,6 @@ const SellForm = () => {
     location: ''
   });
   
-  const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState(null);
@@ -37,7 +36,6 @@ const SellForm = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -79,9 +77,7 @@ const SellForm = () => {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0);
       
-      canvas.toBlob((blob) => {
-        const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
-        setImage(file);
+      canvas.toBlob(() => {
         setImagePreview(canvas.toDataURL());
         stopCamera();
       }, 'image/jpeg', 0.9);
@@ -121,7 +117,6 @@ const SellForm = () => {
       deliveryType: 'encuentro',
       location: ''
     });
-    setImage(null);
     setImagePreview(null);
   };
 
@@ -234,7 +229,6 @@ const SellForm = () => {
               <button 
                 type="button" 
                 onClick={() => {
-                  setImage(null);
                   setImagePreview(null);
                 }}
                 className="remove-image-btn"
