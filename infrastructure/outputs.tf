@@ -37,18 +37,3 @@ output "environment_id" {
   description = "Railway environment ID (default environment)"
   value       = railway_project.main.default_environment.id
 }
-
-output "terraform_backend_service_id" {
-  description = "Railway service ID for Terraform backend"
-  value       = railway_service.terraform_backend.id
-}
-
-output "terraform_backend_url" {
-  description = "URL del backend de Terraform (configurar después del primer deployment)"
-  value       = "https://railway.app/project/${railway_project.main.id}/service/${railway_service.terraform_backend.id}"
-}
-
-output "terraform_backend_instructions" {
-  description = "Instrucciones para configurar el backend HTTP"
-  value       = "Después del primer deployment, obtén la URL pública del servicio terraform-backend desde Railway Dashboard y configúrala en backend.hcl"
-}

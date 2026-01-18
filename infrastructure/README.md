@@ -73,25 +73,12 @@ infrastructure/
 
 #### Inicializar Terraform
 
-**Primero, despliega la infraestructura (incluye el backend HTTP)**:
-
 ```bash
 cd infrastructure
 terraform init
-terraform apply
 ```
 
-**Luego, configura el backend HTTP**:
-
-1. Configura el Volume persistente en Railway Dashboard (ver sección "Estado de Terraform" arriba)
-2. Obtén la URL pública del servicio `terraform-backend`
-3. Configura `backend.hcl`:
-
-```bash
-cp backend.hcl.example backend.hcl
-# Edita backend.hcl con la URL de tu servicio
-terraform init -backend-config=backend.hcl -migrate-state
-```
+Esto descargará el provider comunitario de Railway (`terraform-community-providers/railway`).
 
 **Nota**: Si `terraform init` falla, el provider puede no estar disponible o tener problemas. En ese caso, usa la alternativa con Railway CLI (ver [ALTERNATIVA.md](ALTERNATIVA.md) o ejecuta `./deploy.sh`).
 
@@ -256,8 +243,6 @@ Pasos rápidos:
 - [Terraform Railway Provider](https://registry.terraform.io/providers/railwayapp/railway/latest/docs)
 - [Railway Documentation](https://docs.railway.app)
 - [Terraform Documentation](https://www.terraform.io/docs)
-- [Terraform HTTP Backend](https://www.terraform.io/language/settings/backends/http)
-- [Servicio Backend HTTP](terraform-backend/README.md) - Documentación del servicio de backend
 
 ## 🔄 Actualizar Infraestructura
 
@@ -267,133 +252,10 @@ Cuando hagas cambios en los archivos `.tf`:
 2. Aplica los cambios: `terraform apply`
 3. Verifica los outputs: `terraform output`
 
-## 📦 Estado de Terraform (Backend HTTP en Railway)
+## 📦 Estado de Terraform
 
-El estado de Terraform está configurado para usar un **backend HTTP remoto** desplegado en Railway. Esto significa que:
+El estado de Terraform se guarda localmente por defecto en `terraform.tfstate`. Para producción, considera usar:
 
-- ✅ El estado se almacena en un servicio dentro de tu infraestructura de Railway
-- ✅ Usa Volumes persistentes de Railway para garantizar persistencia
-- ✅ Múltiples desarrolladores pueden trabajar sin conflictos (con locks)
-- ✅ Todo está dentro de tu propia infraestructura
-- ✅ Sin dependencias externas
-
-### Arquitectura
-
-El backend consiste en:
-1. **Servicio HTTP** (`terraform-backend`) - Servicio Node.js que expone una API REST
-2. **Volume persistente** - Almacena el estado de forma permanente
-3. **Desplegado en Railway** - Parte de tu misma infraestructura
-
-### Configuración Inicial
-
-#### Paso 1: Desplegar la infraestructura (incluye el backend)
-
-```bash
-cd infrastructure
-terraform init
-terraform apply
-```
-
-Esto creará el servicio `terraform-backend` en Railway.
-
-#### Paso 2: Configurar Volume persistente
-
-**IMPORTANTE**: Después del primer deployment:
-
-1. Ve a Railway Dashboard → tu proyecto → servicio `terraform-backend`
-2. Ve a **Settings → Volumes**
-3. Crea un nuevo Volume (ej: `terraform-state`)
-4. Móntalo en `/app/state`
-5. Esto garantiza que el estado persista entre deployments
-
-#### Paso 3: Obtener la URL del backend
-
-1. Ve a **Settings → Networking** del servicio `terraform-backend`
-2. Genera un dominio público o usa el dominio automático de Railway
-3. Copia la URL (ej: `https://terraform-backend-xxxx.up.railway.app`)
-
-**Para GitHub Actions**: Agrega esta URL como secreto:
-- Ve a GitHub → tu repositorio → Settings → Secrets and variables → Actions
-- Agrega un nuevo secreto: `TF_BACKEND_URL` con la URL completa (sin `/terraform.tfstate`)
-- Ejemplo: `https://terraform-backend-xxxx.up.railway.app`
-
-#### Paso 4: Configurar Terraform para usar el backend
-
-```bash
-cd infrastructure
-cp backend.hcl.example backend.hcl
-```
-
-Edita `backend.hcl` con la URL de tu servicio:
-
-```hcl
-address = "https://terraform-backend-xxxx.up.railway.app/terraform.tfstate"
-lock_address   = "https://terraform-backend-xxxx.up.railway.app/terraform.tfstate/lock"
-unlock_address = "https://terraform-backend-xxxx.up.railway.app/terraform.tfstate/lock"
-lock_method   = "POST"
-unlock_method = "DELETE"
-retry_max      = 5
-retry_wait_min = 1
-```
-
-#### Paso 5: Inicializar Terraform con el backend
-
-```bash
-terraform init -backend-config=backend.hcl
-```
-
-Si ya tienes un estado local, Terraform te preguntará si quieres migrarlo. Responde `yes`.
-
-### Migrar Estado Local a Remoto
-
-Si ya tienes un estado local:
-
-```bash
-cd infrastructure
-
-# 1. Configura el backend
-cp backend.hcl.example backend.hcl
-# Edita backend.hcl con la URL de tu servicio
-
-# 2. Inicializa con migración
-terraform init -migrate-state -backend-config=backend.hcl
-
-# 3. Confirma la migración cuando se te pregunte
-```
-
-### Verificar el Backend
-
-Puedes verificar que el backend funciona:
-
-```bash
-# Health check
-curl https://tu-backend.railway.app/health
-
-# Ver estado (requiere autenticación si la configuraste)
-curl https://tu-backend.railway.app/terraform.tfstate
-```
-
-### Seguridad
-
-⚠️ **Importante**: El backend HTTP básico no incluye autenticación. Para producción:
-
-1. Usa HTTPS (Railway lo proporciona automáticamente)
-2. Considera agregar autenticación básica o tokens al servicio
-3. Restringe el acceso mediante Railway networking settings
-
-### Troubleshooting
-
-**El estado no persiste:**
-- Verifica que el Volume esté montado en `/app/state` en Railway Dashboard
-
-**Error 404 al obtener estado:**
-- Es normal en el primer uso, el estado se creará automáticamente
-
-**Lock no se libera:**
-- Reinicia el servicio desde Railway Dashboard
-- O elimina manualmente el archivo de lock desde el Volume
-
-### Documentación del Servicio
-
-- [terraform-backend/README.md](terraform-backend/README.md) - Documentación técnica del servicio
-- [BACKEND_SETUP.md](BACKEND_SETUP.md) - Guía completa de configuración del backend
+- **Terraform Cloud** (gratis para equipos pequeños)
+- **S3 + DynamoDB** (AWS)
+- **Backend remoto de Railway** (si está disponible)

@@ -51,58 +51,12 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
 
-      - name: Configure Terraform Backend
-        working-directory: ./infrastructure
-        env:
-          TF_BACKEND_URL: ${{ secrets.TF_BACKEND_URL }}
-        run: |
-          # Crear backend.hcl dinámicamente si tenemos la URL del backend
-          if [ -n "$TF_BACKEND_URL" ]; then
-            cat > backend.hcl <<EOF
-          address = "$TF_BACKEND_URL/terraform.tfstate"
-          lock_address = "$TF_BACKEND_URL/terraform.tfstate/lock"
-          unlock_address = "$TF_BACKEND_URL/terraform.tfstate/lock"
-          lock_method = "POST"
-          unlock_method = "DELETE"
-          retry_max = 5
-          retry_wait_min = 1
-          EOF
-            echo "✅ Backend HTTP configurado: $TF_BACKEND_URL"
-          else
-            echo "⚠️  TF_BACKEND_URL no configurado."
-            echo "📝 Para el primer deployment, esto es normal. El estado se guardará localmente."
-            echo "📝 Después del primer deployment, configura TF_BACKEND_URL con la URL del servicio terraform-backend"
-            echo "📝 Luego ejecuta: terraform init -migrate-state -backend-config=backend.hcl"
-          fi
-
       - name: Terraform Init
         working-directory: ./infrastructure
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          # Si existe backend.hcl, úsalo
-          if [ -f backend.hcl ]; then
-            echo "✅ Usando backend.hcl para configuración remota"
-            terraform init -backend-config=backend.hcl || {
-              echo "❌ Error inicializando con backend remoto"
-              echo "📝 Verifica que:"
-              echo "   1. El servicio terraform-backend esté desplegado en Railway"
-              echo "   2. El secreto TF_BACKEND_URL tenga la URL correcta"
-              echo "   3. El servicio tenga un dominio público configurado"
-              exit 1
-            }
-          else
-            echo "❌ TF_BACKEND_URL no está configurado"
-            echo ""
-            echo "📝 Para configurar el backend:"
-            echo "   1. Despliega la infraestructura manualmente primero (esto creará el servicio terraform-backend)"
-            echo "   2. Obtén la URL del servicio terraform-backend desde Railway Dashboard"
-            echo "   3. Agrega el secreto TF_BACKEND_URL en GitHub con esa URL"
-            echo "   4. Ejecuta este workflow nuevamente"
-            echo ""
-            echo "💡 Alternativa: Para desarrollo local, puedes usar backend.hcl con localhost"
-            exit 1
-          fi
+          terraform init
 
       - name: Terraform Validate
         working-directory: ./infrastructure

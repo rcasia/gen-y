@@ -10,25 +10,12 @@ terraform {
     }
   }
 
-  # Backend HTTP remoto en Railway
-  # El estado se almacena en un servicio HTTP desplegado en Railway
-  # Usa un Volume persistente para almacenar el estado de forma segura
-  #
-  # IMPORTANTE: Estos valores son solo para desarrollo local.
-  # Para producción/CI, configura backend.hcl o usa el secreto TF_BACKEND_URL en GitHub Actions
-  #
-  # Configuración mediante archivo backend.hcl:
-  # terraform init -backend-config=backend.hcl
-  #
-  # El workflow de GitHub Actions crea backend.hcl automáticamente usando TF_BACKEND_URL
-  backend "http" {
-    # Valores por defecto (pueden ser sobrescritos con -backend-config)
-    address        = "http://localhost:3000/terraform.tfstate"
-    lock_address   = "http://localhost:3000/terraform.tfstate/lock"
-    unlock_address = "http://localhost:3000/terraform.tfstate/lock"
-    lock_method    = "POST"
-    unlock_method  = "DELETE"
-    retry_max      = 5
-    retry_wait_min = 1
-  }
+  # Backend configuration (opcional)
+  # Para producción, considera usar Terraform Cloud o S3
+  # backend "remote" {
+  #   organization = "tu-organizacion"
+  #   workspaces {
+  #     name = "geny-market"
+  #   }
+  # }
 }

@@ -51,33 +51,3 @@ resource "railway_custom_domain" "custom" {
   environment_id = railway_project.main.default_environment.id
   domain         = var.domain
 }
-
-# Terraform Backend Service
-# Servicio HTTP simple para almacenar el estado de Terraform
-# Usa un Volume persistente de Railway para almacenar el estado
-resource "railway_service" "terraform_backend" {
-  project_id = railway_project.main.id
-  name       = "terraform-backend"
-  
-  # Conectar repositorio de GitHub si se proporciona
-  source_repo       = var.github_repo != "" ? var.github_repo : null
-  source_repo_branch = var.github_repo != "" ? var.github_branch : null
-  
-  # Directorio raíz apunta a la carpeta del backend
-  root_directory = "infrastructure/terraform-backend"
-}
-
-# Variables de entorno para el backend de Terraform
-resource "railway_variable" "backend_state_dir" {
-  service_id     = railway_service.terraform_backend.id
-  environment_id = railway_project.main.default_environment.id
-  name           = "STATE_DIR"
-  value          = "/app/state"
-}
-
-resource "railway_variable" "backend_port" {
-  service_id     = railway_service.terraform_backend.id
-  environment_id = railway_project.main.default_environment.id
-  name           = "PORT"
-  value          = "3000"
-}
