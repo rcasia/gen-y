@@ -71,3 +71,23 @@ variable "service_subdomain" {
   type        = string
   default     = "web"
 }
+
+# MinIO S3 Configuration
+variable "minio_root_user" {
+  description = "MinIO root user (access key)"
+  type        = string
+  default     = "minioadmin"
+}
+
+variable "minio_root_password" {
+  description = "MinIO root password (secret key)"
+  type        = string
+  sensitive   = true
+  default     = "minioadmin"
+}
+
+variable "minio_bucket" {
+  description = "MinIO bucket name for Terraform state"
+  type        = string
+  default     = "terraform-state"
+}

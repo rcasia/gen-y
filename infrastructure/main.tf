@@ -4,8 +4,43 @@ resource "railway_project" "main" {
   name = var.project_name
 }
 
-# Railway Service
+# MinIO S3 Service (Simple S3)
+# Servicio S3-compatible para almacenar el estado de Terraform
+# Se despliega ANTES que la app para que el backend S3 esté disponible
+resource "railway_service" "minio" {
+  project_id = railway_project.main.id
+  name       = "minio-s3"
+  
+  # Usar la imagen oficial de MinIO
+  # Railway detectará automáticamente que es un servicio Docker
+}
+
+# Variables de entorno para MinIO
+resource "railway_variable" "minio_root_user" {
+  service_id     = railway_service.minio.id
+  environment_id = railway_project.main.default_environment.id
+  name           = "MINIO_ROOT_USER"
+  value          = var.minio_root_user
+}
+
+resource "railway_variable" "minio_root_password" {
+  service_id     = railway_service.minio.id
+  environment_id = railway_project.main.default_environment.id
+  name           = "MINIO_ROOT_PASSWORD"
+  value          = var.minio_root_password
+  sensitive      = true
+}
+
+resource "railway_variable" "minio_bucket" {
+  service_id     = railway_service.minio.id
+  environment_id = railway_project.main.default_environment.id
+  name           = "MINIO_BUCKET"
+  value          = var.minio_bucket
+}
+
+# Railway Service (App Web)
 # Conecta el repositorio de GitHub y configura el despliegue
+# DEPENDS_ON: Se despliega después de MinIO para que el backend S3 esté disponible
 resource "railway_service" "web" {
   project_id = railway_project.main.id
   name       = var.service_name
@@ -18,6 +53,9 @@ resource "railway_service" "web" {
   # Directorio raíz (vacío = raíz del repo)
   # Railway detectará automáticamente railway.json en la raíz
   root_directory = var.root_directory != "" ? var.root_directory : null
+  
+  # Asegurar que MinIO se despliegue primero
+  depends_on = [railway_service.minio]
 }
 
 # Railway Variables de Entorno

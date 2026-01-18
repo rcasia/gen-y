@@ -1,0 +1,25 @@
+# Configuración del backend S3 usando MinIO en Railway
+# Copia este archivo a backend.hcl y configura los valores después del primer deployment
+
+# Bucket de MinIO (configurado en MINIO_BUCKET)
+bucket = "terraform-state"
+
+# Key del archivo de estado
+key = "terraform.tfstate"
+
+# Región (cualquier valor funciona con MinIO)
+region = "us-east-1"
+
+# Endpoint de MinIO (obtén la URL pública desde Railway Dashboard)
+# Formato: https://tu-minio-xxxx.up.railway.app
+endpoint = "https://tu-minio-xxxx.up.railway.app"
+
+# Credenciales de MinIO (MINIO_ROOT_USER y MINIO_ROOT_PASSWORD)
+access_key = "minioadmin"
+secret_key = "minioadmin"
+
+# Configuración para MinIO (S3-compatible)
+skip_credentials_validation = true
+skip_metadata_api_check     = true
+skip_region_validation       = true
+force_path_style             = true

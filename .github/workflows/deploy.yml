@@ -51,12 +51,59 @@ jobs:
           terraform_version: ${{ env.TERRAFORM_VERSION }}
           terraform_wrapper: false
 
+      - name: Configure Terraform S3 Backend
+        working-directory: ./infrastructure
+        env:
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_S3_BUCKET: ${{ secrets.TF_S3_BUCKET }}
+        run: |
+          # Crear backend.hcl dinámicamente si tenemos la configuración de MinIO
+          if [ -n "$AWS_ENDPOINT" ] && [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$TF_S3_BUCKET" ]; then
+            cat > backend.hcl <<EOF
+          bucket = "$TF_S3_BUCKET"
+          key = "terraform.tfstate"
+          region = "us-east-1"
+          endpoint = "$AWS_ENDPOINT"
+          access_key = "$AWS_ACCESS_KEY_ID"
+          secret_key = "$AWS_SECRET_ACCESS_KEY"
+          skip_credentials_validation = true
+          skip_metadata_api_check = true
+          skip_region_validation = true
+          force_path_style = true
+          EOF
+            echo "✅ Backend S3 configurado: $AWS_ENDPOINT"
+          else
+            echo "⚠️  Variables de MinIO no configuradas. El backend usará valores por defecto (localhost)"
+            echo "📝 Para usar MinIO, configura los secretos: AWS_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, TF_S3_BUCKET"
+          fi
+
       - name: Terraform Init
         working-directory: ./infrastructure
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          # Variables para el backend S3 (si están configuradas)
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ENDPOINT: ${{ secrets.AWS_ENDPOINT }}
         run: |
-          terraform init
+          # Si existe backend.hcl, úsalo; si no, usa valores por defecto
+          if [ -f backend.hcl ]; then
+            echo "✅ Usando backend.hcl para configuración S3 remota"
+            terraform init -backend-config=backend.hcl || {
+              echo "❌ Error inicializando con backend S3"
+              echo "📝 Verifica que:"
+              echo "   1. MinIO esté desplegado en Railway"
+              echo "   2. Los secretos de AWS estén configurados correctamente"
+              echo "   3. El bucket exista en MinIO"
+              exit 1
+            }
+          else
+            echo "⚠️  backend.hcl no encontrado. Usando configuración por defecto (localhost)"
+            echo "⚠️  Para producción, configura los secretos de MinIO en GitHub"
+            terraform init
+          fi
 
       - name: Terraform Validate
         working-directory: ./infrastructure

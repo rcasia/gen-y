@@ -37,3 +37,18 @@ output "environment_id" {
   description = "Railway environment ID (default environment)"
   value       = railway_project.main.default_environment.id
 }
+
+output "minio_service_id" {
+  description = "MinIO S3 service ID"
+  value       = railway_service.minio.id
+}
+
+output "minio_service_url" {
+  description = "MinIO service dashboard URL"
+  value       = "https://railway.app/project/${railway_project.main.id}/service/${railway_service.minio.id}"
+}
+
+output "minio_instructions" {
+  description = "Instrucciones para configurar el backend S3"
+  value       = "Después del deployment, obtén la URL pública de MinIO desde Railway Dashboard y configúrala en backend.hcl"
+}

@@ -136,6 +136,9 @@ terraform destroy
 | `root_directory` | Directorio raíz del servicio | `""` | No |
 | `generate_domain` | Generar dominio público automáticamente | `true` | No |
 | `service_subdomain` | Subdominio para el servicio | `web` | No |
+| `minio_root_user` | Usuario root de MinIO | `minioadmin` | No |
+| `minio_root_password` | Password root de MinIO | `minioadmin` | No |
+| `minio_bucket` | Nombre del bucket para estado de Terraform | `terraform-state` | No |
 
 \* **Requerido para despliegue automático**: Si no se proporciona `github_repo`, el servicio se creará pero no se conectará a ningún repositorio y no habrá deployments automáticos.
 
@@ -243,6 +246,10 @@ Pasos rápidos:
 - [Terraform Railway Provider](https://registry.terraform.io/providers/railwayapp/railway/latest/docs)
 - [Railway Documentation](https://docs.railway.app)
 - [Terraform Documentation](https://www.terraform.io/docs)
+- [Railway Simple S3 Template](https://railway.com/deploy/simple-s3)
+- [MinIO Documentation](https://min.io/docs)
+- [Terraform S3 Backend](https://www.terraform.io/language/settings/backends/s3)
+- [Configuración de MinIO](MINIO_SETUP.md) - Guía completa para configurar MinIO
 
 ## 🔄 Actualizar Infraestructura
 
@@ -252,10 +259,26 @@ Cuando hagas cambios en los archivos `.tf`:
 2. Aplica los cambios: `terraform apply`
 3. Verifica los outputs: `terraform output`
 
-## 📦 Estado de Terraform
+## 📦 Estado de Terraform (Backend S3 con MinIO)
 
-El estado de Terraform se guarda localmente por defecto en `terraform.tfstate`. Para producción, considera usar:
+El estado de Terraform está configurado para usar **MinIO S3** (Simple S3) desplegado en Railway como backend remoto.
 
-- **Terraform Cloud** (gratis para equipos pequeños)
-- **S3 + DynamoDB** (AWS)
-- **Backend remoto de Railway** (si está disponible)
+### Características
+
+- ✅ Estado almacenado en MinIO S3 dentro de Railway
+- ✅ Persistencia garantizada con Volumes de Railway
+- ✅ MinIO se despliega **ANTES** que la app (usando `depends_on`)
+- ✅ Compatible con el backend S3 estándar de Terraform
+- ✅ Sin dependencias externas
+
+### Configuración Inicial
+
+**IMPORTANTE**: MinIO debe estar desplegado y configurado antes de usar el backend S3.
+
+1. **Despliega MinIO** usando el [template de Railway](https://railway.com/deploy/simple-s3) o crea el servicio con Terraform
+2. **Configura el backend** después del primer deployment (ver [MINIO_SETUP.md](MINIO_SETUP.md))
+
+### Documentación
+
+- [MINIO_SETUP.md](MINIO_SETUP.md) - Guía completa para configurar MinIO y el backend S3
+- [backend.hcl.example](backend.hcl.example) - Ejemplo de configuración del backend S3

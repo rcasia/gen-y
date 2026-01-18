@@ -17,3 +17,8 @@ root_directory  = ""                # Directorio raíz (vacío = raíz del repo)
 # Dominio público
 generate_domain  = true              # Generar dominio público automáticamente
 service_subdomain = "web"            # Subdominio para el servicio
+
+# Configuración de MinIO S3 (para backend de Terraform)
+minio_root_user     = "minioadmin"   # Usuario root de MinIO
+minio_root_password  = "minioadmin"   # Password root de MinIO (cambiar en producción)
+minio_bucket         = "terraform-state" # Nombre del bucket para el estado
