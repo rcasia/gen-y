@@ -1,15 +1,17 @@
-name: Deploy to Railway
+# DISABLED: Railway deployment moved to GitHub Pages
+# To re-enable, uncomment this workflow
+# name: Deploy to Railway
 
 on:
-  push:
-    branches:
-      - main
-      - master
-  pull_request:
-    branches:
-      - main
-      - master
-  workflow_dispatch:
+  workflow_dispatch:  # Only manual trigger, disabled for automatic deployment
+  # push:
+  #   branches:
+  #     - main
+  #     - master
+  # pull_request:
+  #   branches:
+  #     - main
+  #     - master
 
 env:
   NODE_VERSION: '20'

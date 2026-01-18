@@ -21,9 +21,12 @@ function App() {
     return <Loading onComplete={handleLoadingComplete} />;
   }
 
+  // Basename para GitHub Pages (usar el nombre del repositorio)
+  const basename = import.meta.env.BASE_URL || '/';
+
   return (
     <AppProvider>
-      <Router>
+      <Router basename={basename}>
         <div className="app">
           <Header />
           <main className="main-content">
