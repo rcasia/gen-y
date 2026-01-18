@@ -31,9 +31,9 @@ RUN mkdir -p /etc/nginx/templates
 RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Copy custom nginx main config (limita workers)
-COPY infrastructure/nginx-main.conf /etc/nginx/nginx.conf
+COPY infrastructure/nginx-main.conf /etc/nginx/nginx-main.conf
 
-# Copy custom nginx server config template
+# Copy custom nginx config template
 COPY infrastructure/nginx.conf /etc/nginx/templates/default.conf.template
 
 # Copy built files from builder
