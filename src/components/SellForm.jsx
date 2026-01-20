@@ -15,6 +15,7 @@ const SellForm = () => {
     description: '',
     price: '',
     category: 'Otros',
+    musicType: '',
     deliveryType: 'encuentro',
     location: ''
   });
@@ -24,6 +25,7 @@ const SellForm = () => {
   const [stream, setStream] = useState(null);
 
   const categories = ['CDs', 'Tocadiscos', 'Mangas', 'Juegos', 'Otros'];
+  const musicTypes = ['Rock', 'Pop', 'Jazz', 'Rock Alternativo', 'Electrónica', 'Progressive'];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -114,6 +116,7 @@ const SellForm = () => {
       description: '',
       price: '',
       category: 'Otros',
+      musicType: '',
       deliveryType: 'encuentro',
       location: ''
     });
@@ -171,7 +174,12 @@ const SellForm = () => {
               <select
                 name="category"
                 value={formData.category}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  if (e.target.value !== 'CDs') {
+                    setFormData(prev => ({ ...prev, musicType: '' }));
+                  }
+                }}
                 required
               >
                 {categories.map(cat => (
@@ -180,6 +188,23 @@ const SellForm = () => {
               </select>
             </div>
           </div>
+
+          {formData.category === 'CDs' && (
+            <div className="form-group">
+              <label>Tipo de Música *</label>
+              <select
+                name="musicType"
+                value={formData.musicType}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Selecciona un tipo</option>
+                {musicTypes.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="form-section">

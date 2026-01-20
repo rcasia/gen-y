@@ -14,7 +14,30 @@ export const useApp = () => {
 export const AppProvider = ({ children }) => {
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('products');
-    const parsedProducts = saved ? JSON.parse(saved) : [];
+    let parsedProducts = saved ? JSON.parse(saved) : [];
+    
+    // Migrar productos existentes: agregar musicType a CDs que no lo tengan
+    parsedProducts = parsedProducts.map(product => {
+      if (product.category === 'CDs' && !product.musicType) {
+        // Intentar inferir el tipo de música desde la descripción o título
+        const titleDesc = `${product.title} ${product.description}`.toLowerCase();
+        if (titleDesc.includes('jazz')) {
+          return { ...product, musicType: 'Jazz' };
+        } else if (titleDesc.includes('rock alternativo') || titleDesc.includes('nirvana') || titleDesc.includes('radiohead')) {
+          return { ...product, musicType: 'Rock Alternativo' };
+        } else if (titleDesc.includes('electrónica') || titleDesc.includes('electronic') || titleDesc.includes('daft punk') || titleDesc.includes('deadmau5')) {
+          return { ...product, musicType: 'Electrónica' };
+        } else if (titleDesc.includes('progressive') || titleDesc.includes('pink floyd')) {
+          return { ...product, musicType: 'Progressive' };
+        } else if (titleDesc.includes('pop') || titleDesc.includes('madonna') || titleDesc.includes('michael jackson')) {
+          return { ...product, musicType: 'Pop' };
+        } else if (titleDesc.includes('rock') || titleDesc.includes('beatles') || titleDesc.includes('led zeppelin') || titleDesc.includes('rolling stones')) {
+          return { ...product, musicType: 'Rock' };
+        }
+        // Si no se puede inferir, dejarlo sin clasificar
+      }
+      return product;
+    });
     
     // Si no hay productos o hay menos de 10, usar los productos de ejemplo
     if (parsedProducts.length < 10) {
@@ -59,6 +82,7 @@ export const AppProvider = ({ children }) => {
         price: 45,
         image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Progressive',
         seller: 'Ana Martínez',
         deliveryType: 'envio',
         location: 'Sevilla'
@@ -103,6 +127,7 @@ export const AppProvider = ({ children }) => {
         price: 60,
           image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Pop',
         seller: 'Carmen López',
         deliveryType: 'envio',
         location: 'Murcia'
@@ -147,6 +172,7 @@ export const AppProvider = ({ children }) => {
         price: 120,
           image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Jazz',
         seller: 'Elena Fernández',
         deliveryType: 'envio',
         location: 'Valladolid'
@@ -191,6 +217,7 @@ export const AppProvider = ({ children }) => {
         price: 55,
           image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Rock Alternativo',
         seller: 'Marta Vega',
         deliveryType: 'envio',
         location: 'Oviedo'
@@ -235,6 +262,7 @@ export const AppProvider = ({ children }) => {
         price: 85,
           image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Rock',
         seller: 'Cristina Ramos',
         deliveryType: 'envio',
         location: 'Logroño'
@@ -279,6 +307,7 @@ export const AppProvider = ({ children }) => {
         price: 70,
           image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Electrónica',
         seller: 'Lucía Blanco',
         deliveryType: 'envio',
         location: 'Palma'
@@ -334,6 +363,7 @@ export const AppProvider = ({ children }) => {
         price: 95,
           image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&h=600&fit=crop&q=80',
         category: 'CDs',
+        musicType: 'Rock',
         seller: 'Eva Cortés',
         deliveryType: 'encuentro',
         location: 'Cuenca'
@@ -363,7 +393,28 @@ export const AppProvider = ({ children }) => {
 
 
   useEffect(() => {
-    localStorage.setItem('products', JSON.stringify(products));
+    // Guardar productos y asegurar que los CDs tengan musicType
+    const productsToSave = products.map(product => {
+      if (product.category === 'CDs' && !product.musicType) {
+        // Si es un CD sin musicType, intentar inferirlo
+        const titleDesc = `${product.title} ${product.description}`.toLowerCase();
+        if (titleDesc.includes('jazz')) {
+          return { ...product, musicType: 'Jazz' };
+        } else if (titleDesc.includes('rock alternativo') || titleDesc.includes('nirvana') || titleDesc.includes('radiohead')) {
+          return { ...product, musicType: 'Rock Alternativo' };
+        } else if (titleDesc.includes('electrónica') || titleDesc.includes('electronic') || titleDesc.includes('daft punk') || titleDesc.includes('deadmau5')) {
+          return { ...product, musicType: 'Electrónica' };
+        } else if (titleDesc.includes('progressive') || titleDesc.includes('pink floyd')) {
+          return { ...product, musicType: 'Progressive' };
+        } else if (titleDesc.includes('pop') || titleDesc.includes('madonna') || titleDesc.includes('michael jackson')) {
+          return { ...product, musicType: 'Pop' };
+        } else if (titleDesc.includes('rock') || titleDesc.includes('beatles') || titleDesc.includes('led zeppelin') || titleDesc.includes('rolling stones')) {
+          return { ...product, musicType: 'Rock' };
+        }
+      }
+      return product;
+    });
+    localStorage.setItem('products', JSON.stringify(productsToSave));
   }, [products]);
 
   useEffect(() => {

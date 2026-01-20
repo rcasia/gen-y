@@ -80,6 +80,49 @@
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
 }
 
+.music-type-filters {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid rgba(157, 0, 255, 0.3);
+}
+
+.music-filter-label {
+  display: block;
+  margin-bottom: 1rem;
+  color: var(--neon-cyan);
+  font-weight: 600;
+  font-size: 1rem;
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+.music-type-btn {
+  border-color: var(--neon-cyan);
+  background: rgba(0, 255, 255, 0.1);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+}
+
+.music-type-btn:hover {
+  border-color: var(--neon-blue);
+  color: var(--neon-blue);
+  background: rgba(0, 245, 255, 0.2);
+  box-shadow: 
+    0 0 20px rgba(0, 245, 255, 0.4),
+    0 0 30px rgba(0, 245, 255, 0.2);
+}
+
+.music-type-btn.active {
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+  color: white;
+  border-color: var(--neon-blue);
+  box-shadow: 
+    0 0 20px rgba(0, 245, 255, 0.6),
+    0 0 40px rgba(0, 255, 255, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
